@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
 
     if (execfiles.length > 0) {
       exec(
-        `tpm2_encryptdecrypt -d -c ../var/tpm/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}`,
+        `tpm2_encryptdecrypt -d -c ../var/tpm/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]} && \
+         tpm2_flushcontext -tls`,
         (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
@@ -24,6 +25,26 @@ export async function GET(req: NextRequest) {
         }
       );
     }
+    
+    exec(
+      `tpm2_flushcontext -tls && \
+       tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
+       tpm2_flushcontext -tls && \
+       tpm2_create -C ../var/tpm/primary.ctx -Gaes128 -c ../var/tpm/key.ctx && \
+       tpm2_flushcontext -tls && \
+       rm ../var/tpm/primary.ctx && \
+       tpm2_encryptdecrypt -c ../var/tpm/key.ctx -o ../root/flag.txt.enc ../root/flag.txt && \
+       rm ../root/flag.txt && \
+       tpm2_flushcontext -tls`,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stderr: ${stderr}`);
+        console.log(`stdout: ${stdout}`);
+      }
+    );
 
     // Read the files in the directory
     const files = await fs.readdir(directoryPath);
@@ -97,13 +118,10 @@ export async function POST(req: NextRequest) {
     console.log(destinationDirPath);
     exec(
       `tpm2_flushcontext -tls && \
-       tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
-       tpm2_flushcontext -tls && \
-       tpm2_create -C ../var/tpm/primary.ctx -Gaes128 -c ../var/tpm/key.ctx && \
-       tpm2_flushcontext -tls && \
-       rm ../var/tpm/primary.ctx && \
        tpm2_encryptdecrypt -c ../var/tpm/key.ctx -o ../var/tpm/uploads/${file.name} ../var/tpm/tmp/${file.name} && \ 
-       rm ../var/tpm/tmp/${file.name}`,
+       tpm2_flushcontext -tls && \
+       rm ../var/tpm/tmp/${file.name}
+       `,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
@@ -140,7 +158,7 @@ export async function DELETE(req: NextRequest) {
       await fs.unlink(filePath);
       await fs.access(directoryPath);
       await fs.unlink(directoryPath);
-      
+
       return NextResponse.json("File deleted successfully");
     } catch (error) {
       console.error("Error deleting file:", error);
