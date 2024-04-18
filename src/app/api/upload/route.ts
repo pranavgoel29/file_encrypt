@@ -54,12 +54,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error downloading file:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });
-  } finally {
-    if (existsSync(directoryPath)) {
-      const filepath = path.join(process.cwd(), directoryPath, execfiles[0]);
-      await fs.unlink(filepath);
-    }
-  }
+  } 
 }
 
 export async function POST(req: NextRequest) {
