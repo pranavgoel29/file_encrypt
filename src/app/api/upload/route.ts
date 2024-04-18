@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
           console.log(`stdout: ${stdout}`);
         }
       );
-    } else {
+    } else if (execfiles.length === 0) {
       exec(
         `tpm2_flushcontext -tls && \
        tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
