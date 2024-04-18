@@ -68,9 +68,9 @@ const UploadFile: React.FC = () => {
       if (fileSizeInBytes > fileSizeLimit) {
         setError("File size exceeds the limit (65KB)");
       } else {
+        setFile(selectedFile);
         setError("");
       }
-      setFile(selectedFile);
     } else {
       setFile(null);
     }
