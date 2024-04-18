@@ -3,17 +3,17 @@ import { existsSync } from "fs";
 import fs, { readdir } from "fs/promises";
 import path from "path";
 import { exec } from "child_process";
+import e from "express";
 
 export async function GET(req: NextRequest) {
-  const directoryPath = path.join(process.cwd(), "/var/tpm/tmp");
+  const directoryPath = path.join(process.cwd(), "../var/tpm/tmp");
+  const execdirectoryPath = path.join(process.cwd(), "../var/tpm/uploads");
+  const execfiles = await fs.readdir(execdirectoryPath);
   try {
     // Define the directory path
-    const execdirectoryPath = path.join(process.cwd(), "/var/tpm/uploads");
-
-    const execfiles = await fs.readdir(execdirectoryPath);
 
     exec(
-      `tpm2_encryptdecrypt -d -c /var/tpm/tmp/key.ctx -o /var/tpm/tmp/${execfiles[0]} /var/tpm/uploads/${execfiles[0]}.enc`,
+      `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}.enc`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
@@ -55,7 +55,10 @@ export async function GET(req: NextRequest) {
     console.error("Error downloading file:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });
   } finally {
-    await fs.unlink(directoryPath);
+    if (existsSync(directoryPath)) {
+      const filepath = path.join(process.cwd(), directoryPath, execfiles[0]);
+      await fs.unlink(filepath);
+    }
   }
 }
 
@@ -67,7 +70,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({}, { status: 400 });
   }
   const file = f as File;
-  const destinationDirPath = path.join(process.cwd(), "/var/tpm/tmp");
+  const destinationDirPath = path.join(process.cwd(), "../var/tpm/tmp");
   try {
     // Read the files in the destination directory
     const files = await readdir(destinationDirPath);
@@ -87,13 +90,13 @@ export async function POST(req: NextRequest) {
 
     console.log(destinationDirPath);
     exec(
-      `tpm2_createprimary -Gecc256 -c /var/tpm/tmp/primary.ctx 
+      `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx 
       && tpm2_flushcontext -tls 
-      && tpm2_create -C primary.ctx -Gaes128 -c /var/tpm/tmp/key.ctx 
+      && tpm2_create -C primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx 
       && tpm2_flushcontext -tls 
-      && rm /var/tpm/tmp/primary.ctx 
-      && tpm2_encryptdecrypt -c /var/tpm/tmp/key.ctx -o /var/tpm/uploads/${file.name}.enc /var/tpm/tmp/${file.name} 
-      && rm /var/tpm/tmp/${file.name}`,
+      && rm ../var/tpm/tmp/primary.ctx 
+      && tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} 
+      && rm ../var/tpm/tmp/${file.name}`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
@@ -120,7 +123,7 @@ export async function DELETE(req: NextRequest) {
     // Get the file name from the request body
     const fileName = await req.json(); // Assuming fileName is passed in the request body
     // Construct the file path
-    const filePath = path.join(process.cwd(), "/var/tpm/uploads", fileName);
+    const filePath = path.join(process.cwd(), "../var/tpm/uploads", fileName);
 
     try {
       // Check if the file exists
