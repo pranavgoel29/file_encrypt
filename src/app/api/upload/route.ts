@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     if (execfiles.length > 0) {
       exec(
-        `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}.enc`,
+        `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}`,
         (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
@@ -87,13 +87,13 @@ export async function POST(req: NextRequest) {
 
     console.log(destinationDirPath);
     exec(
-      `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx 
-      && tpm2_flushcontext -tls 
-      && tpm2_create -C primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx 
-      && tpm2_flushcontext -tls 
-      && rm ../var/tpm/tmp/primary.ctx 
-      && tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} 
-      && rm ../var/tpm/tmp/${file.name}`,
+      `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx && \
+       tpm2_flushcontext -tls && \
+       tpm2_create -C ..var/tpm/tmp/primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx && \
+       tpm2_flushcontext -tls && \
+       rm ../var/tpm/tmp/primary.ctx && \
+       tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} && \ 
+       rm ../var/tpm/tmp/${file.name}`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
