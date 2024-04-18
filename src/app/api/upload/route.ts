@@ -12,17 +12,19 @@ export async function GET(req: NextRequest) {
   try {
     // Define the directory path
 
-    exec(
-      `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}.enc`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return;
+    if (execfiles.length > 0) {
+      exec(
+        `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}.enc`,
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stderr: ${stderr}`);
+          console.log(`stdout: ${stdout}`);
         }
-        console.log(`stderr: ${stderr}`);
-        console.log(`stdout: ${stdout}`);
-      }
-    );
+      );
+    }
 
     // Read the files in the directory
     const files = await fs.readdir(directoryPath);
@@ -54,7 +56,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error downloading file:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });
-  } 
+  }
 }
 
 export async function POST(req: NextRequest) {
