@@ -131,12 +131,16 @@ export async function DELETE(req: NextRequest) {
     const fileName = await req.json(); // Assuming fileName is passed in the request body
     // Construct the file path
     const filePath = path.join(process.cwd(), "../var/tpm/uploads", fileName);
+    const directoryPath = path.join(process.cwd(), "../var/tpm/tmp", fileName);
 
     try {
       // Check if the file exists
       await fs.access(filePath);
       // Delete the file
       await fs.unlink(filePath);
+      await fs.access(directoryPath);
+      await fs.unlink(directoryPath);
+      
       return NextResponse.json("File deleted successfully");
     } catch (error) {
       console.error("Error deleting file:", error);
