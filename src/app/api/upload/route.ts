@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     if (execfiles.length > 0) {
       exec(
-        `tpm2_encryptdecrypt -d -c ../var/tpm/tmp/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}`,
+        `tpm2_encryptdecrypt -d -c ../var/tpm/key.ctx -o ../var/tpm/tmp/${execfiles[0]} ../var/tpm/uploads/${execfiles[0]}`,
         (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
