@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     exec(
       `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx && \
        tpm2_flushcontext -tls && \
-       tpm2_create -C ..var/tpm/tmp/primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx && \
+       tpm2_create -C ../var/tpm/tmp/primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx && \
        tpm2_flushcontext -tls && \
        rm ../var/tpm/tmp/primary.ctx && \
        tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} && \ 
