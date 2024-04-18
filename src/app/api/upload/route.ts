@@ -87,7 +87,8 @@ export async function POST(req: NextRequest) {
 
     console.log(destinationDirPath);
     exec(
-      `tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
+      `tpm2_flushcontext -tls && \
+       tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
        tpm2_flushcontext -tls && \
        tpm2_create -C ../var/tpm/primary.ctx -Gaes128 -c ../var/tpm/key.ctx && \
        tpm2_flushcontext -tls && \
