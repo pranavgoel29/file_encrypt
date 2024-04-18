@@ -86,23 +86,23 @@ export async function POST(req: NextRequest) {
     );
 
     console.log(destinationDirPath);
-    exec(
-      `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx && \
-       tpm2_flushcontext -tls && \
-       tpm2_create -C ..var/tpm/tmp/primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx && \
-       tpm2_flushcontext -tls && \
-       rm ../var/tpm/tmp/primary.ctx && \
-       tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} && \ 
-       rm ../var/tpm/tmp/${file.name}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return;
-        }
-        console.log(`stderr: ${stderr}`);
-        console.log(`stdout: ${stdout}`);
-      }
-    );
+    // exec(
+    //   `tpm2_createprimary -Gecc256 -c ../var/tpm/tmp/primary.ctx && \
+    //    tpm2_flushcontext -tls && \
+    //    tpm2_create -C ..var/tpm/tmp/primary.ctx -Gaes128 -c ../var/tpm/tmp/key.ctx && \
+    //    tpm2_flushcontext -tls && \
+    //    rm ../var/tpm/tmp/primary.ctx && \
+    //    tpm2_encryptdecrypt -c ../var/tpm/tmp/key.ctx -o ../var/tpm/uploads/${file.name}.enc ../var/tpm/tmp/${file.name} && \ 
+    //    rm ../var/tpm/tmp/${file.name}`,
+    //   (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`exec error: ${error}`);
+    //       return;
+    //     }
+    //     console.log(`stderr: ${stderr}`);
+    //     console.log(`stdout: ${stdout}`);
+    //   }
+    // );
 
     return NextResponse.json({
       fileName: file.name,

@@ -64,7 +64,8 @@ const UploadFile: React.FC = () => {
     if (selectedFile) {
       // Check file size (e.g., limit to 65KB)
       const fileSizeLimit = 65 * 1024; // 65KB in bytes
-      const fileSizeInBytes = parseInt(fileStats.fileSize, 10);
+      const fileSizeInBytes = selectedFile.size;
+      console.log("File size in bytes:", fileSizeInBytes);
       if (fileSizeInBytes > fileSizeLimit) {
         setError("File size exceeds the limit (65KB)");
       } else {
@@ -184,7 +185,7 @@ const UploadFile: React.FC = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <label htmlFor="file" className="block mb-6 font-bold text-lg">
+          <label htmlFor="file" className="block font-bold mb-6 text-lg">
             Select File
             <Input
               id="file"
@@ -192,8 +193,8 @@ const UploadFile: React.FC = () => {
               className="mt-2 block w-full px-3 py-2 rounded-md border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
               onChange={handleChange}
             />
+          {error && <p className="text-red-500 font-bold mt-1 text-sm">{error}</p>}
           </label>
-          {error && <p className="text-red-500">{error}</p>}
           <Button
             type="submit"
             className={`px-3 py-2 rounded-md text-sm font-medium ${
