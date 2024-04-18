@@ -3,7 +3,6 @@ import { existsSync } from "fs";
 import fs, { readdir } from "fs/promises";
 import path from "path";
 import { exec } from "child_process";
-import e from "express";
 
 export async function GET(req: NextRequest) {
   const directoryPath = path.join(process.cwd(), "../var/tpm/tmp");
@@ -56,6 +55,16 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error downloading file:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });
+  } finally {
+    if (execfiles.length > 0) {
+      exec(`rm ../var/tpm/tmp/${execfiles[0]}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+        }
+        console.log(`stderr: ${stderr}`);
+        console.log(`stdout: ${stdout}`);
+      });
+    }
   }
 }
 
