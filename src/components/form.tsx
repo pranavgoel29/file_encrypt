@@ -13,6 +13,7 @@ const UploadFile: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [uploadedFile, setUploadedFile] = useState<any>(null);
+  const [error, setError] = useState("");
   const [fileStats, setFileStats] = useState<FileStats>({
     fileName: "",
     fileSize: "",
@@ -61,6 +62,14 @@ const UploadFile: React.FC = () => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
+      // Check file size (e.g., limit to 65KB)
+      const fileSizeLimit = 65 * 1024; // 65KB in bytes
+      const fileSizeInBytes = parseInt(fileStats.fileSize, 10);
+      if (fileSizeInBytes > fileSizeLimit) {
+        setError("File size exceeds the limit (65KB)");
+      } else {
+        setError("");
+      }
       setFile(selectedFile);
     } else {
       setFile(null);
@@ -155,14 +164,23 @@ const UploadFile: React.FC = () => {
       {uploadedFile ? (
         <div>
           <h2 className="font-bold text-xl mb-2">Uploaded File</h2>
-        <div>
-            <p><strong>File Name:</strong> {fileStats.fileName}</p>
-            <p><strong>Size:</strong> {fileStats.fileSize}</p>
-        </div>
+          <div>
+            <p>
+              <strong>File Name:</strong> {fileStats.fileName}
+            </p>
+            <p>
+              <strong>Size:</strong> {fileStats.fileSize}
+            </p>
+          </div>
           <Button onClick={handleDownload} className="mr-2 mt-4">
             Download
           </Button>
-          <Button onClick={handleDelete} className="bg-red-500 font-bold hover:bg-red-600">Delete</Button>
+          <Button
+            onClick={handleDelete}
+            className="bg-red-500 font-bold hover:bg-red-600"
+          >
+            Delete
+          </Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -171,11 +189,11 @@ const UploadFile: React.FC = () => {
             <Input
               id="file"
               type="file"
-              accept=".pdf,.docx,.xlsx,.jpg,.png"
               className="mt-2 block w-full px-3 py-2 rounded-md border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
               onChange={handleChange}
             />
           </label>
+          {error && <p className="text-red-500">{error}</p>}
           <Button
             type="submit"
             className={`px-3 py-2 rounded-md text-sm font-medium ${
