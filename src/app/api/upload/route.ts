@@ -24,10 +24,9 @@ export async function GET(req: NextRequest) {
           console.log(`stdout: ${stdout}`);
         }
       );
-    }
-    
-    exec(
-      `tpm2_flushcontext -tls && \
+    } else {
+      exec(
+        `tpm2_flushcontext -tls && \
        tpm2_createprimary -Gecc256 -c ../var/tpm/primary.ctx && \
        tpm2_flushcontext -tls && \
        tpm2_create -C ../var/tpm/primary.ctx -Gaes128 -c ../var/tpm/key.ctx && \
@@ -36,15 +35,16 @@ export async function GET(req: NextRequest) {
        tpm2_encryptdecrypt -c ../var/tpm/key.ctx -o ../root/flag.txt.enc ../root/flag.txt && \
        rm ../root/flag.txt && \
        tpm2_flushcontext -tls`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return;
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stderr: ${stderr}`);
+          console.log(`stdout: ${stdout}`);
         }
-        console.log(`stderr: ${stderr}`);
-        console.log(`stdout: ${stdout}`);
-      }
-    );
+      );
+    }
 
     // Read the files in the directory
     const files = await fs.readdir(directoryPath);
